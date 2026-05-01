@@ -31,8 +31,9 @@ jobs:
     
     - name: Package to EXE
       run: |
-        jpackage --type app-image --input . --main-jar DouDiZhu.jar --name DouDiZhu --dest output
-        jpackage --type exe --input . --main-jar DouDiZhu.jar --name DouDiZhu --dest output --icon icon.ico 2>$null; if ($LASTEXITCODE -ne 0) { jpackage --type exe --input . --main-jar DouDiZhu.jar --name DouDiZhu --dest output }
+        Write-Host "Creating EXE with jpackage..."
+        jpackage --type exe --input . --main-jar DouDiZhu.jar --name DouDiZhu --dest output --verbose
+      shell: pwsh
     
     - name: Upload EXE
       uses: actions/upload-artifact@v4
