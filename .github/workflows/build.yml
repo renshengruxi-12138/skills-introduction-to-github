@@ -1,0 +1,75 @@
+name: Build and Package
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+    
+    - name: Compile Java
+      run: javac *.java
+    
+    - name: Create JAR
+      run: |
+        echo Main-Class: GameFrame > manifest.txt
+        jar cfm DouDiZhu.jar manifest.txt *.class
+    
+    - name: Package to EXE
+      uses: nick-fields/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        command: |
+          # 下载launch4j
+          Invoke-WebRequest -Uri "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.14/launch4j-3.14-win32.zip/download" -OutFile "launch4j.zip"
+          Expand-Archive -Path "launch4j.zip" -DestinationPath "."
+          
+          # 创建launch4j配置文件
+          @'
+          <launch4jConfig>
+            <dontWrapJar>false</dontWrapJar>
+            <headerType>gui</headerType>
+            <jar>DouDiZhu.jar</jar>
+            <outfile>DouDiZhu.exe</outfile>
+            <errTitle></errTitle>
+            <cmdLine></cmdLine>
+            <chdir>.</chdir>
+            <priority>normal</priority>
+            <downloadUrl>https://www.java.com/download/</downloadUrl>
+            <supportUrl></supportUrl>
+            <stayAlive>false</stayAlive>
+            <restartOnCrash>false</restartOnCrash>
+            <manifest></manifest>
+            <icon></icon>
+            <jre>
+              <path>%JAVA_HOME%</path>
+              <bundledJre64Bit>true</bundledJre64Bit>
+              <minVersion>11</minVersion>
+              <maxVersion></maxVersion>
+              <jdkPreference>preferJre</jdkPreference>
+              <runtimeBits>64</runtimeBits>
+            </jre>
+          </launch4jConfig>
+          '@ > launch4j.xml
+          
+          # 使用launch4j打包
+          .\launch4j\launch4jc.exe launch4j.xml
+    
+    - name: Upload EXE
+      uses: actions/upload-artifact@v3
+      with:
+        name: DouDiZhu-EXE
+        path: DouDiZhu.exe
