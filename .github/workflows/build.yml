@@ -26,7 +26,8 @@ jobs:
     
     - name: Create JAR
       run: |
-        echo Main-Class: GameFrame > manifest.txt
+        Add-Content -Path "manifest.txt" -Value "Main-Class: GameFrame"
+        Add-Content -Path "manifest.txt" -Value ""
         jar cfm DouDiZhu.jar manifest.txt *.class
     
     - name: Package to EXE
