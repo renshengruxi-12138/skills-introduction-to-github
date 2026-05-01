@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
     - uses: actions/checkout@v4
@@ -21,12 +23,12 @@ jobs:
     
     - name: Compile Java
       run: javac *.java
-      continue-on-error: true
     
     - name: Create JAR
       run: |
         echo Main-Class: GameFrame > manifest.txt
         jar cfm DouDiZhu.jar manifest.txt *.class
+      continue-on-error: true
     
     - name: Package to EXE
       uses: nick-fields/retry@v2
