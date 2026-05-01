@@ -22,7 +22,7 @@ jobs:
         distribution: 'temurin'
     
     - name: Compile Java
-      run: javac *.java
+      run: javac -encoding UTF-8 *.java
     
     - name: Create JAR
       run: |
